@@ -1,19 +1,34 @@
 import sqlite3
 from app.database.db_config import get_db_connection
 
-def get_all_students():
+def get_all_students(page=1, per_page=10):
     """
-    Retrieve all students from the database.
-    Returns: List of dictionaries representing students.
+    Retrieve students with pagination.
+    Args:
+        page (int): Page number (default 1).
+        per_page (int): Number of items per page (default 10).
     """
     conn = get_db_connection()
+    offset = (page - 1) * per_page
+    
     try:
-        students = conn.execute('SELECT * FROM students').fetchall()
-        # Convert sqlite3.Row objects to standard dictionaries
-        return [dict(row) for row in students]
+        # Total count to know how much pages are. 
+        total_count = conn.execute('SELECT COUNT(*) FROM students').fetchone()[0]
+        
+        # Bring only what we need (LIMIT and OFFSET)
+        sql = 'SELECT * FROM students LIMIT ? OFFSET ?'
+        students = conn.execute(sql, (per_page, offset)).fetchall()
+        
+        return {
+            "students": [dict(row) for row in students],
+            "total": total_count,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": (total_count + per_page - 1) // per_page
+        }
     except sqlite3.Error as e:
         print(f"Database error: {e}")
-        return []
+        return {"students": [], "total": 0}
     finally:
         conn.close()
 

@@ -55,6 +55,12 @@ Gemini 3.0
 
 El código generado por la IA fue revisado para asegurar que las variables usaran snake_case (Python) y que los comentarios estuvieran en inglés, cumpliendo con los estándares de la actividad.
 
+* Cambios y optimizaciones realizadas con ayuda de la IA:
+
+    - Cambio en la funcion get_all_students: Se realizó un cambio en la misma para añadir la paginación la cual antes no tenía, esto evita que el servidor colapse en caso de tener mucha cantidad de datos.
+    - Cambio en la funcion get_students: Se realizó un cambio en la misma para que sea compatible con la paginación, al igualmente también se le añadio el codigo correspondiente a la documentación Swagger
+    - Cambio en la función add_student: Se realizó un cambio en la misma para que sea compatible con la documentación Swagger.
+
 * Explicación de Codigo generado por IA:
 
     - init_db.py: Este codigo se encarga de la creación/inicialización de nuestra base de datos principal. //Funciones usados: create_table (SQLite), en caso tal de que la base ya este creada se usa una funcion if para el inicio automatico de la misma.

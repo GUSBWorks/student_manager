@@ -10,7 +10,7 @@ def create_app():
     app.config['SWAGGER'] = {
         'title': 'Student Management API',
         'uiversion': 3,
-        'description': 'API para la gestión de estudiantes universitarios (CRUD)'
+        'description': 'API for the management of university students (CRUD) by: Gustavo Barreto, José Marcano and Gemini! :D'
     }
     
     # 2. Execute Swagger
