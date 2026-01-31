@@ -15,16 +15,16 @@ nuevo_estudiante = {
     "enrollment_date": "2026-01-30"
 }
 
-print("1. Intentando crear estudiante...")
+print("1. Trying to create the student...")
 response = requests.post(url, json=nuevo_estudiante)
 
 if response.status_code == 201:
-    print("✅ ÉXITO: Estudiante creado!")
-    print("Respuesta del servidor:", response.json())
+    print("✅ SUCESS: Student created successfully!")
+    print("Server response:", response.json())
 else:
     print("❌ ERROR:", response.status_code)
     print(response.text)
 
-print("\n2. Verificando si se guardó en la lista...")
+print("\n2. List check...")
 response_get = requests.get(url)
-print("Lista actual de estudiantes:", response_get.json())
+print("Actual student list:", response_get.json())

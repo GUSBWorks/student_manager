@@ -7,7 +7,30 @@ student_bp = Blueprint('student_bp', __name__)
 @student_bp.route('/api/students', methods=['GET'])
 def get_students():
     """
-    Endpoint to retrieve the list of all students.
+    Get all student list.
+    ---
+    tags:
+      - Students
+    responses:
+      200:
+        description: Full list of registered students
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              first_name:
+                type: string
+              last_name:
+                type: string
+              email:
+                type: string
+              major:
+                type: string
+              semester:
+                type: integer
     """
     students = get_all_students()
     return jsonify(students), 200
