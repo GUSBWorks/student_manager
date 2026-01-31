@@ -29,6 +29,10 @@ A robust backend for university student academic management. Developed using **P
     ```bash
     pip install -r requirements.txt
     ```
+    > **Tip:** If the command above fails or is not recognized, try this alternative: (it may occur in Windows 11)
+    > ```bash
+    > python -m pip install -r requirements.txt
+    > ```
 
 3.  **Initialize the Database:**
     ```bash
@@ -41,6 +45,7 @@ A robust backend for university student academic management. Developed using **P
     python populate_db.py
     ```
     *(Automatically inserts 10 dummy students for testing).*
+    > **Note:** If this script returns errors (e.g., "IntegrityError" or duplicate emails), it means the database is already populated. You can safely ignore the error and proceed to the next step.
 
 5.  **Start the Server:**
     ```bash
@@ -259,6 +264,10 @@ Backend robusto para la gestión académica de estudiantes universitarios. Desar
     ```bash
     pip install -r requirements.txt
     ```
+    > **Sugerencia:** Si el comando anterior falla o no se reconoce, prueba esta alternativa: (suele ocurrir en Windows 11)
+    > ```bash
+    > python -m pip install -r requirements.txt
+    > ```
 
 3.  **Inicializar la Base de Datos:**
     ```bash
@@ -271,6 +280,7 @@ Backend robusto para la gestión académica de estudiantes universitarios. Desar
     python populate_db.py
     ```
     *(Inserta 10 estudiantes automáticamente para pruebas).*
+    > **Nota**: Si este script devuelve errores (p. ej., "IntegrityError" o correos electrónicos duplicados), significa que la base de datos ya está llena. Puede ignorar el error y continuar con el siguiente paso.
 
 5.  **Iniciar el Servidor:**
     ```bash
