@@ -17,6 +17,8 @@ Backend robusto para la gestión académica de estudiantes universitarios. Desar
 
 ## 🚀 Instalación y Ejecución
 
+## Instalacion Manual
+
 1.  **Clonar el repositorio:**
     ```bash
     git clone <tu-link-del-repo>
@@ -50,6 +52,23 @@ Backend robusto para la gestión académica de estudiantes universitarios. Desar
 Una vez iniciado el servidor, visita la siguiente URL para ver la documentación interactiva y probar los endpoints:
 
 👉 **http://127.0.0.1:5000/apidocs**
+
+
+## 🐳 Deployment con Docker
+
+El proyecto incluye configuración para ser desplegado en contenedores, facilitando su ejecución en cualquier entorno sin instalar dependencias manualmente.
+
+1.  **Construir la imagen:**
+    ```bash
+    docker build -t student-manager .
+    ```
+
+2.  **Ejecutar el contenedor:**
+    ```bash
+    docker run -p 5000:5000 student-manager
+    ```
+
+La API estará disponible en `http://localhost:5000/api/students`.
 
 ### Endpoints Clave:
 
