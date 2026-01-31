@@ -21,7 +21,7 @@ A robust backend for university student academic management. Developed using **P
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repo-link>
+    git clone https://github.com/GUSBWorks/student_manager.git
     cd student_manager
     ```
 
@@ -251,7 +251,7 @@ Backend robusto para la gestión académica de estudiantes universitarios. Desar
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone <tu-link-del-repo>
+    git clone https://github.com/GUSBWorks/student_manager.git
     cd student_manager
     ```
 
