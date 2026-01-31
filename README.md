@@ -51,6 +51,12 @@ Gemini 3.0
 
     3. Debugging: 
 
+    - Error en el DELETE: solo daba validación de delete a traves del Swagger pero no ejecutaba la acción (el estudiante elimiando seguia estando en la tabla.)
+    # Solucion:
+    - Se le colocaron "Lentes" al controlador para que logrará distinguir entre los estudiantes inactivos y los cuales no, Gemini nos ayudo a resolverlo mejorando las funciones: get_all_students y get_student_by_id. (# CORRECCIÓN: Contamos solo los activos (is_active = 1) - # CORRECCIÓN: Traemos solo los activos)
+
+
+
 * Adaptación del código:
 
 El código generado por la IA fue revisado para asegurar que las variables usaran snake_case (Python) y que los comentarios estuvieran en inglés, cumpliendo con los estándares de la actividad.
@@ -60,6 +66,7 @@ El código generado por la IA fue revisado para asegurar que las variables usara
     - Cambio en la funcion get_all_students: Se realizó un cambio en la misma para añadir la paginación la cual antes no tenía, esto evita que el servidor colapse en caso de tener mucha cantidad de datos.
     - Cambio en la funcion get_students: Se realizó un cambio en la misma para que sea compatible con la paginación, al igualmente también se le añadio el codigo correspondiente a la documentación Swagger
     - Cambio en la función add_student: Se realizó un cambio en la misma para que sea compatible con la documentación Swagger.
+    - Adición y Adaptación del código generado en la Parte B (José Marcano)
 
 * Explicación de Codigo generado por IA:
 

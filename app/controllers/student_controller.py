@@ -3,7 +3,7 @@ from app.database.db_config import get_db_connection
 
 def get_all_students(page=1, per_page=10):
     """
-    Retrieve students with pagination.
+    Retrieve ONLY ACTIVE students with pagination.
     Args:
         page (int): Page number (default 1).
         per_page (int): Number of items per page (default 10).
@@ -12,11 +12,11 @@ def get_all_students(page=1, per_page=10):
     offset = (page - 1) * per_page
     
     try:
-        # Total count to know how much pages are. 
-        total_count = conn.execute('SELECT COUNT(*) FROM students').fetchone()[0]
+        # Only count those that are active (is_active = 1)
+        total_count = conn.execute('SELECT COUNT(*) FROM students WHERE is_active = 1').fetchone()[0]
         
-        # Bring only what we need (LIMIT and OFFSET)
-        sql = 'SELECT * FROM students LIMIT ? OFFSET ?'
+        # Only bring in those that are active
+        sql = 'SELECT * FROM students WHERE is_active = 1 LIMIT ? OFFSET ?'
         students = conn.execute(sql, (per_page, offset)).fetchall()
         
         return {
@@ -65,5 +65,76 @@ def create_student(student_data):
     except sqlite3.Error as e:
         print(f"Database Error: {e}")
         return None
+    finally:
+        conn.close()
+
+def get_student_by_id(student_id):
+    """
+    Retrieve a single student by ID (Only if active).
+    """
+    conn = get_db_connection()
+    try:
+        
+        sql = 'SELECT * FROM students WHERE id = ? AND is_active = 1'
+        student = conn.execute(sql, (student_id,)).fetchone()
+        
+        if student:
+            return dict(student)
+        return None
+    finally:
+        conn.close()
+
+def update_student(student_id, data):
+    """
+    Update student data (Dynamic SQL for both PUT and PATCH).
+    Returns: Updated student dict or None if not found.
+    """
+    conn = get_db_connection()
+    try:
+        # Check if student exists
+        student = conn.execute('SELECT * FROM students WHERE id = ?', (student_id,)).fetchone()
+        if not student:
+            conn.close()
+            return None
+
+        # Build dynamic query: "UPDATE students SET field1=?, field2=? WHERE id=?"
+        fields = []
+        values = []
+        for key, value in data.items():
+            # Only update valid columns and update 'updated_at' automatically
+            if key in ['first_name', 'last_name', 'email', 'major', 'semester', 'gpa', 'is_active']:
+                fields.append(f"{key} = ?")
+                values.append(value)
+        
+        fields.append("updated_at = CURRENT_TIMESTAMP")
+        
+        if not fields:
+            conn.close()
+            return dict(student) # Nothing to update
+
+        sql = f"UPDATE students SET {', '.join(fields)} WHERE id = ?"
+        values.append(student_id)
+        
+        conn.execute(sql, values)
+        conn.commit()
+        
+        # Return the updated student
+        updated_student = conn.execute('SELECT * FROM students WHERE id = ?', (student_id,)).fetchone()
+        return dict(updated_student)
+    finally:
+        conn.close()
+
+def delete_student(student_id):
+    """Soft delete a student (set is_active = 0)."""
+    conn = get_db_connection()
+    try:
+        # Check if exists first
+        student = conn.execute('SELECT id FROM students WHERE id = ?', (student_id,)).fetchone()
+        if not student:
+            return False
+            
+        conn.execute('UPDATE students SET is_active = 0 WHERE id = ?', (student_id,))
+        conn.commit()
+        return True
     finally:
         conn.close()
