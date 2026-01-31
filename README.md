@@ -1,5 +1,233 @@
 # Student Management System API 🎓
 
+A robust backend for university student academic management. Developed using **Python (Flask)** and **SQLite**, implementing RESTful architecture, strict validations, automated documentation, and containerization.
+
+## ✨ Key Features
+
+* **Complete CRUD:** Create, Read, Update, and Delete students.
+* **Soft Delete & Restore:** Students are not permanently deleted; they are moved to a "recycle bin" and can be restored.
+* **Pagination:** Optimized listing endpoint for handling large datasets.
+* **Validations:** Strict control for unique emails, GPA range (0.0-4.0), and date formats.
+* **Interactive Documentation:** Integrated with **Swagger UI** for visual API testing.
+* **Dockerized:** Ready for containerized deployment.
+
+## 📋 Prerequisites
+
+* Python 3.13+
+* Git
+* Docker (Optional, for containerized execution)
+
+## 🚀 Installation and Execution
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repo-link>
+    cd student_manager
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Initialize the Database:**
+    ```bash
+    python app/database/init_db.py
+    ```
+    *(This creates the `students.db` file with the required table).*
+
+4.  **Load Test Data (Optional):**
+    ```bash
+    python populate_db.py
+    ```
+    *(Automatically inserts 10 dummy students for testing).*
+
+5.  **Start the Server:**
+    ```bash
+    python run.py
+    ```
+
+## 🐳 Running with Docker
+
+The project includes configuration for containerized deployment, facilitating execution in any environment without manual dependency installation.
+
+1.  **Build the image:**
+    ```bash
+    docker build -t student-manager .
+    ```
+
+2.  **Run the container:**
+    ```bash
+    docker run -p 5000:5000 student-manager
+    ```
+
+The API will be available at `http://localhost:5000/api/students`.
+
+## 🧪 Testing & Documentation (Swagger)
+
+Once the server is running, visit the following URL to view the interactive documentation and test the endpoints:
+
+👉 **http://127.0.0.1:5000/apidocs**
+
+### Key Endpoints:
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/students` | List students (Params: `page`, `per_page`, `is_active`). |
+| `POST` | `/api/students` | Register a new student. |
+| `GET` | `/api/students/<id>` | Get details of a specific student. |
+| `PUT` | `/api/students/<id>` | Full update of student information. |
+| `PATCH`| `/api/students/<id>` | Partial update (e.g., update only GPA). |
+| `DELETE`| `/api/students/<id>` | Move to trash (Soft Delete). |
+| `POST` | `/api/students/<id>/restore`| **[EXTRA]** Restore a deleted student. |
+
+## 🚀 Quick Test Guide (Copy-Paste Examples)
+
+To facilitate evaluation, here are exact JSON payloads to test each feature in **Swagger UI** or Postman.
+
+### 1. List Students (GET)
+* **Endpoint:** `/api/students`
+* **Usage:** Get paginated list.
+* **Parameters:**
+    * `page`: 1
+    * `per_page`: 5
+    * `is_active`: true (set to `false` to view the recycle bin)
+
+### 2. Create Student (POST)
+* **Endpoint:** `/api/students`
+* **Body (JSON):**
+    ```json
+    {
+      "first_name": "Evaluator",
+      "last_name": "Test",
+      "email": "prof.test@university.edu",
+      "major": "Computer Science",
+      "semester": 1,
+      "gpa": 4.0,
+      "enrollment_date": "2026-02-01"
+    }
+    ```
+
+### 3. Full Update (PUT)
+* **Endpoint:** `/api/students/{id}` (Replace `{id}` with an actual ID, e.g., 1)
+* **Body (JSON):**
+    ```json
+    {
+      "first_name": "Evaluator",
+      "last_name": "Updated",
+      "email": "prof.update@university.edu",
+      "major": "Education Masters",
+      "semester": 2,
+      "gpa": 3.8,
+      "enrollment_date": "2026-02-01"
+    }
+    ```
+
+### 4. Partial Update (PATCH)
+* **Endpoint:** `/api/students/{id}`
+* **Usage:** Ideal for correcting a single field without sending the whole object.
+* **Body (JSON):**
+    ```json
+    {
+      "gpa": 3.5
+    }
+    ```
+
+### 5. Delete / Soft Delete (DELETE)
+* **Endpoint:** `/api/students/{id}`
+* **Effect:** The student disappears from the main list (`is_active=true`) but appears if filtering by `is_active=false`.
+
+### 6. Restore Student (POST - Extra Feature)
+* **Endpoint:** `/api/students/{id}/restore`
+* **Usage:** Recover a student who was accidentally deleted.
+
+---
+
+## 🛠️ Troubleshooting Log
+
+During development, we encountered and resolved several technical challenges. Below is a log of errors and their solutions:
+
+### 1. Module Error (ModuleNotFoundError)
+* **Error:** `ModuleNotFoundError: No module named 'flask'` when trying to execute `run.py`.
+* **Cause:** The virtual environment did not have dependencies installed or was not activated.
+* **Solution:** Created `requirements.txt` and executed `pip install -r requirements.txt`.
+
+### 2. Package Structure (ImportError)
+* **Error:** `ImportError: attempted relative import with no known parent package` when executing `python app/routes/student_routes.py`.
+* **Cause:** Python did not recognize the `app` folder as a package because a submodule was being executed directly.
+* **Solution:** Implemented `run.py` at the project root to import the app correctly as a module (`from app import create_app`) and ensured `__init__.py` files existed in every subfolder.
+
+### 3. Data Persistence (Database Not Found)
+* **Error:** The application ran, but the database reset itself or couldn't find the `students` table.
+* **Cause:** `students.db` was generated in the root, but the code expected it inside `app/database/`.
+* **Solution:** Adjusted configuration in `db_config.py` to use absolute paths (`os.path.join`) ensuring the database is always read from `app/database/students.db`.
+
+### 4. Soft Delete Logic (Visual Persistence)
+* **Error:** When deleting a student (`DELETE`), the server responded "Success", but the student still appeared in the general list (`GET`).
+* **Cause:** The `get_all_students` function retrieved all records from the table without checking their status.
+* **Solution:** Modified the SQL query to include the filter `WHERE is_active = 1` by default, hiding records marked as deleted.
+
+### 5. Git Identity Unknown
+* **Error:** Git failed on the first commit with the message `Please tell me who you are`.
+* **Solution:** Configured global user credentials (`git config --global user.email ...`) to correctly sign changes.
+
+---
+
+## 🔄 Code Evolution (Refactoring)
+
+The code evolved to support new features and improve scalability:
+
+1.  **Initial Version (V1):**
+    * Executed simple `SELECT * FROM students`.
+    * *Issue:* Not scalable. Retrieving all records at once is inefficient for large datasets.
+
+2.  **Paginated Version (V2):**
+    * Added `page` and `per_page` parameters.
+    * Implemented mathematical logic for SQL `LIMIT` and `OFFSET`.
+    * *Improvement:* Allows retrieving data in chunks (e.g., 10 at a time).
+
+3.  **Final Version with Filters (V3):**
+    * Added `is_active` parameter.
+    * Implemented dynamic logic to filter between "Active" and "Trash".
+    * *Result:* A single function now handles normal listing, pagination, and viewing deleted files.
+
+**Additional Innovation: Restore System**
+Beyond basic requirements, we realized a "Soft Delete" is incomplete if it cannot be undone. We developed an exclusive endpoint `POST /api/students/<id>/restore` that allows "reviving" a deleted record by changing its `is_active` status from `0` to `1`.
+
+---
+
+## 🤖 AI Usage 
+
+In accordance with the activity guidelines, the use of Generative AI tools is documented below:
+
+**AI Tools Used:**
+* Gemini 3.0 (Programming Assistant).
+
+**Application in the Project:**
+1.  **Project Structure:** AI suggested the modular folder architecture (separating `controllers`, `routes`, and `models`) to keep the code clean and scalable.
+2.  **Dynamic SQL Queries:** AI was used to generate the logic for partial updates (`PATCH`) and dynamic filtering of active/inactive students using raw SQL.
+3.  **Debugging:** Assistance in initial Flask configuration and fixing circular import errors in Python.
+
+**Human Adaptation and Improvement:**
+* The code generated by AI was refactored to comply with the required `snake_case` naming convention.
+* Logic for **Restore** and **Regex Validations** was manually implemented, as it was not part of the AI's original scope.
+* All comments and variables were translated and adapted to technical English.
+
+## 📝 Coding Standards
+* **Language:** Python (Flask).
+* **Database:** Native SQLite (no ORM) to demonstrate SQL proficiency.
+* **Style:** PEP 8, `snake_case` for functions/variables, Full English.
+
+---
+**Developed by:** Gustavo Barreto & José Marcano & Gemini.
+
+
+
+
+## ESPAÑOL
+
+# Student Management System API 🎓
+
 Backend robusto para la gestión académica de estudiantes universitarios. Desarrollado con **Python (Flask)** y **SQLite**, implementando arquitectura RESTful, validaciones estrictas y documentación automática.
 
 ## ✨ Características Principales
@@ -9,11 +237,13 @@ Backend robusto para la gestión académica de estudiantes universitarios. Desar
 * **Paginación:** Endpoint de listado optimizado para grandes volúmenes de datos.
 * **Validaciones:** Control estricto de Emails únicos, GPA (0.0-4.0) y formatos de fecha.
 * **Documentación Interactiva:** Integración con **Swagger UI** para probar la API visualmente.
+* **Dockerizado:** Listo para desplegar en contenedores.
 
 ## 📋 Requisitos Previos
 
 * Python 3.13+
 * Git
+* Docker (Optional, for containerized execution)
 
 ## 🚀 Instalación y Ejecución
 
