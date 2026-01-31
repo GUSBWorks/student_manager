@@ -1,87 +1,208 @@
-# Sistema de Gestión de Estudiantes (API REST CRUD)
+# Student Management System API 🎓
 
-Backend de un sistema de gestión académica desarrollado con Python y Flask. Esta API permite administrar información de estudiantes (crear, leer, actualizar y eliminar) utilizando una base de datos SQLite.
+Backend robusto para la gestión académica de estudiantes universitarios. Desarrollado con **Python (Flask)** y **SQLite**, implementando arquitectura RESTful, validaciones estrictas y documentación automática.
 
-## Requisitos Previos
-* Python 3.13.5
-* Flask 3.0.0
+## ✨ Características Principales
 
-## Instalación y Ejecución
+* **CRUD Completo:** Crear, Leer, Actualizar y Eliminar estudiantes.
+* **Soft Delete & Restore:** Los estudiantes no se borran permanentemente; van a una "papelera" y pueden ser restaurados.
+* **Paginación:** Endpoint de listado optimizado para grandes volúmenes de datos.
+* **Validaciones:** Control estricto de Emails únicos, GPA (0.0-4.0) y formatos de fecha.
+* **Documentación Interactiva:** Integración con **Swagger UI** para probar la API visualmente.
 
-1. **Clonar el repositorio** (o descargar la carpeta):
-   ```bash
-   git clone <tu-link-del-repo>
+## 📋 Requisitos Previos
 
-2. Crear y activar entorno virtual (Opcional pero recomendado):
-    python -m venv venv
-    # En Windows:
-        venv\Scripts\activate
-    # En Mac/Linux:
-        source venv/bin/activate
+* Python 3.13+
+* Git
 
-3. Instalar dependencias:
+## 🚀 Instalación y Ejecución
+
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone <tu-link-del-repo>
+    cd student_manager
+    ```
+
+2.  **Instalar dependencias:**
+    ```bash
     pip install -r requirements.txt
+    ```
 
-4. Inicializar la Base de Datos:
+3.  **Inicializar la Base de Datos:**
+    ```bash
     python app/database/init_db.py
+    ```
+    *(Esto creará el archivo `students.db` con la tabla necesaria).*
 
-5. Ejecutar el Servidor:
-    python app/__init__.py
+4.  **Cargar datos de prueba (Opcional):**
+    ```bash
+    python populate_db.py
+    ```
+    *(Inserta 10 estudiantes automáticamente para pruebas).*
 
-## Uso de la API (Endpoints)
+5.  **Iniciar el Servidor:**
+    ```bash
+    python run.py
+    ```
 
-      Método                   Endpoint                 Descripción                                       Ejemplo de Body (JSON)
-        GET,                /api/students,          Listar todos los estudiantes,                                   N/A
-        GET,                /api/students/<id>,     Ver detalle de un estudiante,                                   N/A
-        POST,               /api/students,          Crear estudiante,                               "{ ""first_name"": ""Juan"", ... }"
-        PUT,                /api/students/<id>,     Actualizar todo el estudiante,                  "{ ""first_name"": ""Pedro"", ... }"
-        DELETE,             /api/students/<id>,     Borrar (lógico),                                                N/A
+## 🧪 Pruebas y Documentación (Swagger)
 
-## USO DE IA
+Una vez iniciado el servidor, visita la siguiente URL para ver la documentación interactiva y probar los endpoints:
 
-* Herramientas utilizadas:
+👉 **http://127.0.0.1:5000/apidocs**
 
-Gemini 3.0
+### Endpoints Clave:
 
-* Aplicación en el proyecto:
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `GET` | `/api/students` | Listar estudiantes (Params: `page`, `per_page`, `is_active`). |
+| `POST` | `/api/students` | Registrar nuevo estudiante. |
+| `GET` | `/api/students/<id>` | Obtener detalle de un estudiante. |
+| `PUT` | `/api/students/<id>` | Actualización completa. |
+| `PATCH`| `/api/students/<id>` | Actualización parcial (ej: solo GPA). |
+| `DELETE`| `/api/students/<id>` | Enviar a papelera (Soft Delete). |
+| `POST` | `/api/students/<id>/restore`| Restaurar estudiante eliminado. |
 
-    1. Generación de estructura: Se utilizó IA para entender la organización de carpetas en Flask.
+## 🚀 Guía de Pruebas Rápida (Ejemplos Copy-Paste)
 
-    2. Consultas SQL: Se solicitó ayuda para armar el CREATE TABLE con las restricciones correctas.
+Para facilitar la prueba de la API, aquí tiene los ejemplos exactos para probar cada funcionalidad en **Swagger UI** (`/apidocs`) o Postman.
 
-    3. Debugging: 
+### 1. Listar Estudiantes (GET)
+* **Endpoint:** `/api/students`
+* **Uso:** Obtiene la lista paginada.
+* **Parámetros:**
+    * `page`: 1
+    * `per_page`: 5
+    * `is_active`: true (poner `false` para ver la papelera)
 
-    - Error en el DELETE: solo daba validación de delete a traves del Swagger pero no ejecutaba la acción (el estudiante elimiando seguia estando en la tabla.)
-    # Solucion:
-    - Se le colocaron "Lentes" al controlador para que logrará distinguir entre los estudiantes inactivos y los cuales no, Gemini nos ayudo a resolverlo mejorando las funciones: get_all_students y get_student_by_id. (# CORRECCIÓN: Contamos solo los activos (is_active = 1) - # CORRECCIÓN: Traemos solo los activos)
+### 2. Crear Estudiante (POST)
+* **Endpoint:** `/api/students`
+* **Body (JSON) para copiar:**
+    ```json
+    {
+      "first_name": "Evaluador",
+      "last_name": "Test",
+      "email": "profesor.test@unellez.edu.ve",
+      "major": "Ingeniería en Informática",
+      "semester": 1,
+      "gpa": 4.0,
+      "enrollment_date": "2026-02-01"
+    }
+    ```
+
+### 3. Actualizar Estudiante Completo (PUT)
+* **Endpoint:** `/api/students/{id}` (Reemplace `{id}` por el ID creado, ej: 1)
+* **Body (JSON) para copiar:**
+    ```json
+    {
+      "first_name": "Evaluador",
+      "last_name": "Actualizado",
+      "email": "profesor.update@unellez.edu.ve",
+      "major": "Maestría en Educación",
+      "semester": 2,
+      "gpa": 3.8,
+      "enrollment_date": "2026-02-01"
+    }
+    ```
+
+### 4. Actualizar Parcial (PATCH)
+* **Endpoint:** `/api/students/{id}`
+* **Uso:** Ideal para corregir solo un dato sin enviar todo el objeto.
+* **Body (JSON) para copiar:**
+    ```json
+    {
+      "gpa": 3.5
+    }
+    ```
+
+### 5. Eliminar / Enviar a Papelera (DELETE)
+* **Endpoint:** `/api/students/{id}`
+* **Efecto:** El estudiante desaparece de la lista principal (`is_active=true`) pero aparece si filtra por `is_active=false`.
+
+### 6. Restaurar Estudiante (POST - Feature Extra)
+* **Endpoint:** `/api/students/{id}/restore`
+* **Uso:** Recupere un estudiante que fue eliminado accidentalmente.
+* **Prueba:**
+    1. Elimine un ID (ej: 1).
+    2. Verifique que da 404 en el GET normal.
+    3. Ejecute este endpoint `/api/students/1/restore`.
+    4. El estudiante vuelve a aparecer en la lista activa.
 
 
 
-* Adaptación del código:
+## 🤖 Uso de IA
 
-El código generado por la IA fue revisado para asegurar que las variables usaran snake_case (Python) y que los comentarios estuvieran en inglés, cumpliendo con los estándares de la actividad.
+De acuerdo con los lineamientos de la actividad, se documenta el uso de herramientas de Inteligencia Artificial Generativa:
 
-* Cambios y optimizaciones realizadas con ayuda de la IA:
+**Herramientas IA utilizadas:**
+* Gemini 3.0 (Asistente de Programación).
 
-    - Cambio en la funcion get_all_students: Se realizó un cambio en la misma para añadir la paginación la cual antes no tenía, esto evita que el servidor colapse en caso de tener mucha cantidad de datos.
-    - Cambio en la funcion get_students: Se realizó un cambio en la misma para que sea compatible con la paginación, al igualmente también se le añadio el codigo correspondiente a la documentación Swagger
-    - Cambio en la función add_student: Se realizó un cambio en la misma para que sea compatible con la documentación Swagger.
-    - Adición y Adaptación del código generado en la Parte B (José Marcano)
+**Aplicación en el proyecto:**
+1.  **Estructura del Proyecto:** La IA sugirió la arquitectura de carpetas modular (separando `controllers`, `routes` y `models`) para mantener el código limpio y escalable.
+2.  **Consultas SQL Dinámicas:** Se utilizó IA para generar la lógica de actualización parcial (`PATCH`) y el filtrado dinámico de estudiantes activos/inactivos en SQL puro.
+3.  **Debugging:**  Asistencia en la configuración inicial de Flask y corrección de errores de importación circular en Python. Entrando más en detalle abajo.
 
-* Explicación de Codigo generado por IA:
+## 🛠️ Bitácora de Errores y Soluciones (Troubleshooting & Debugging)
 
-    - init_db.py: Este codigo se encarga de la creación/inicialización de nuestra base de datos principal. //Funciones usados: create_table (SQLite), en caso tal de que la base ya este creada se usa una funcion if para el inicio automatico de la misma.
+Durante el desarrollo, nos enfrentamos a varios desafíos técnicos. A continuación, se detallan los errores encontrados y las soluciones implementadas, demostrando el proceso de depuración y de aprendizaje:
 
-    - db_config.py: Este codigo se encarga de conectar la ruta de nuestra base de datos con las rutas y controladores previamente creados.
+### 1. Error de Módulos (ModuleNotFoundError)
+* **Error:** `ModuleNotFoundError: No module named 'flask'` al intentar ejecutar `run.py`.
+* **Causa:** El entorno virtual no tenía las dependencias instaladas o no estaba activado.
+* **Solución:** Se creó un archivo `requirements.txt` y se ejecutó `pip install -r requirements.txt`.
 
-## Estándares de Codificación
+### 2. Estructura de Paquetes (ImportError)
+* **Error:** `ImportError: attempted relative import with no known parent package` al ejecutar `python app/routes/student_routes.py`.
+* **Causa:** Python no reconocía la carpeta `app` como un paquete porque se intentaba ejecutar un submódulo directamente.
+* **Solución:** Se implementó el archivo `run.py` en la raíz del proyecto para importar la aplicación correctamente como un módulo (`from app import create_app`) y se aseguraron los archivos `__init__.py` en cada subcarpeta.
 
-* Idioma: Inglés (Variables, Funciones, Comentarios).
+### 3. Persistencia de Datos (Database Not Found)
+* **Error:** La aplicación funcionaba pero la base de datos se reiniciaba o no encontraba la tabla `students`.
+* **Causa:** El archivo `students.db` se generaba en la raíz pero el código lo buscaba dentro de `app/database/`.
+* **Solución:** Se ajustó la configuración en `db_config.py` para usar rutas absolutas (`os.path.join`) y asegurar que la base de datos siempre se lea desde `app/database/students.db`.
 
-* Nomenclatura: snake_case por que usamos Python.
+### 4. Lógica de Soft Delete (Persistencia Visual)
+* **Error:** Al eliminar un estudiante (`DELETE`), el servidor respondía "Éxito", pero el estudiante seguía apareciendo en el listado general (`GET`).
+* **Causa:** La función `get_all_students` traía todos los registros de la tabla sin discriminar su estado.
+* **Solución:** Se modificó la consulta SQL para incluir el filtro `WHERE is_active = 1` por defecto, ocultando los registros marcados como eliminados.
 
-* Arquitectura: Separación de responsabilidades (Rutas, Controladores, Modelos).
+### 5. Git Identity Unknown
+* **Error:** Git fallaba al intentar hacer el primer commit con el mensaje `Please tell me who you are`.
+* **Solución:** Se configuraron las credenciales globales de usuario y correo (`git config --global user.email ...`) para firmar los cambios correctamente.
 
+**Adaptación y Mejora Humana:**
+* El código generado por la IA fue refactorizado para cumplir con la nomenclatura `snake_case` exigida.
+* Se implementó manualmente la lógica de **Restauración (Restore)** y **Validaciones Regex**, que no estaban en el alcance original sugerido por la IA.
+* Se tradujeron y adaptaron todos los comentarios y variables al inglés técnico requerido.
+
+## Evolución del Código (Refactorización)
+
+El código no fue estático; evolucionó para soportar nuevas funcionalidades. Un ejemplo clave fue la función `get_all_students` en el controlador:
+
+1.  **Versión Inicial (V1):**
+    * Simplemente ejecutaba `SELECT * FROM students`.
+    * *Problema:* No escalable. Si hay 1000 estudiantes, trae los 1000.
+
+2.  **Versión Paginada (V2):**
+    * Se añadieron parámetros `page` y `per_page`.
+    * Se implementó lógica matemática para `LIMIT` y `OFFSET`.
+    * *Mejora:* Permite traer datos por bloques (ej: de 10 en 10).
+
+3.  **Versión Final con Filtros (V3):**
+    * Se añadió el parámetro `is_active`.
+    * Se implementó lógica dinámica para filtrar entre "Activos" y "Inactivos".
+    * *Resultado:* Una sola función ahora maneja listado normal, paginación y visualización de archivos eliminados.
+
+**Innovación Adicional: Sistema de Restauración**
+Más allá de los requisitos básicos, notamos que un "Soft Delete" (Borrado Lógico) está incompleto si no se puede deshacer. Desarrollamos un endpoint exclusivo `POST /api/students/<id>/restore` que permite "revivir" un registro eliminado cambiando su estado `is_active` de `0` a `1`, proporcionando una red de seguridad completa para el usuario.
+
+## 📝 Estándares de Codificación
+* **Lenguaje:** Python (Flask).
+* **Base de Datos:** SQLite nativo (sin ORM) para demostrar dominio de SQL.
+* **Estilo:** PEP 8, `snake_case` para funciones/variables, Full English.
+
+---
+**Desarrollado por:** Gustavo Barreto & José Marcano & Gemini.
 
 
 

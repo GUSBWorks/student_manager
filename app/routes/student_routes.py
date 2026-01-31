@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.controllers.student_controller import (
     get_all_students, create_student, get_student_by_id, 
-    update_student, delete_student
+    update_student, delete_student, restore_student  # <-- Nuevo import
 )
 from app.utils.validators import validate_student_data
 
@@ -11,7 +11,7 @@ student_bp = Blueprint('student_bp', __name__)
 @student_bp.route('/api/students', methods=['GET'])
 def get_students():
     """
-    Obtain students list (with pagination)
+    Obtain student list (filter by actives/inactives)
     ---
     tags: [Students]
     parameters:
@@ -23,13 +23,20 @@ def get_students():
         in: query
         type: integer
         default: 10
+      - name: is_active
+        in: query
+        type: boolean
+        default: true
+        description: True to see active students, False to see the inactive ones
     responses:
-      200:
-        description: Paginated list
+      200: {description: Paginated List}
     """
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
-    result = get_all_students(page, per_page)
+    # Capturamos el filtro (por defecto True)
+    is_active = request.args.get('is_active', 'true')
+    
+    result = get_all_students(page, per_page, is_active)
     return jsonify(result), 200
 
 @student_bp.route('/api/students', methods=['POST'])
@@ -189,10 +196,25 @@ def delete_student_record(id):
         return jsonify({"message": "Student deleted successfully"}), 200
     return jsonify({"error": "Student not found"}), 404
 
-
-
-
-
+@student_bp.route('/api/students/<int:id>/restore', methods=['POST'])
+def restore_student_record(id):
+    """
+    Restore eliminated student
+    ---
+    tags: [Students]
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200: {description: Student restored}
+      404: {description: Not found}
+    """
+    success = restore_student(id)
+    if success:
+        return jsonify({"message": "Student restored successfully"}), 200
+    return jsonify({"error": "Student not found"}), 404
 
 
 

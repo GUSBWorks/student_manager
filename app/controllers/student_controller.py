@@ -1,23 +1,28 @@
 import sqlite3
 from app.database.db_config import get_db_connection
 
-def get_all_students(page=1, per_page=10):
+def get_all_students(page=1, per_page=10, is_active=True):
     """
-    Retrieve ONLY ACTIVE students with pagination.
+    Retrieve students with pagination and active status filter.
     Args:
-        page (int): Page number (default 1).
-        per_page (int): Number of items per page (default 10).
+        is_active (bool/str): Filter by active status (True/False or 'true'/'false').
     """
     conn = get_db_connection()
     offset = (page - 1) * per_page
     
-    try:
-        # Only count those that are active (is_active = 1)
-        total_count = conn.execute('SELECT COUNT(*) FROM students WHERE is_active = 1').fetchone()[0]
+    # Convert string 'true'/'false' to boolean 1/0 for SQLite
+    if str(is_active).lower() == 'false':
+        status_filter = 0
+    else:
+        status_filter = 1
         
-        # Only bring in those that are active
-        sql = 'SELECT * FROM students WHERE is_active = 1 LIMIT ? OFFSET ?'
-        students = conn.execute(sql, (per_page, offset)).fetchall()
+    try:
+        # Filter dynamically based on user requests.
+        count_sql = 'SELECT COUNT(*) FROM students WHERE is_active = ?'
+        total_count = conn.execute(count_sql, (status_filter,)).fetchone()[0]
+        
+        sql = 'SELECT * FROM students WHERE is_active = ? LIMIT ? OFFSET ?'
+        students = conn.execute(sql, (status_filter, per_page, offset)).fetchall()
         
         return {
             "students": [dict(row) for row in students],
@@ -26,9 +31,6 @@ def get_all_students(page=1, per_page=10):
             "per_page": per_page,
             "total_pages": (total_count + per_page - 1) // per_page
         }
-    except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return {"students": [], "total": 0}
     finally:
         conn.close()
 
@@ -138,3 +140,53 @@ def delete_student(student_id):
         return True
     finally:
         conn.close()
+
+
+def restore_student(student_id):
+    """Restore a soft-deleted student (set is_active = 1)."""
+    conn = get_db_connection()
+    try:
+        # Verificamos si existe (incluso si está borrado)
+        student = conn.execute('SELECT id FROM students WHERE id = ?', (student_id,)).fetchone()
+        if not student:
+            return False
+            
+        conn.execute('UPDATE students SET is_active = 1 WHERE id = ?', (student_id,))
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+
+
+#FUNCTION GET ALL STUDENT WITH NO RETRIEVE INACTIVES
+    # def get_all_students(page=1, per_page=10):
+    # """
+    # Retrieve ONLY ACTIVE students with pagination.
+    # Args:
+    #     page (int): Page number (default 1).
+    #     per_page (int): Number of items per page (default 10).
+    # """
+    # conn = get_db_connection()
+    # offset = (page - 1) * per_page
+    
+    # try:
+    #     # Only count those that are active (is_active = 1)
+    #     total_count = conn.execute('SELECT COUNT(*) FROM students WHERE is_active = 1').fetchone()[0]
+        
+    #     # Only bring in those that are active
+    #     sql = 'SELECT * FROM students WHERE is_active = 1 LIMIT ? OFFSET ?'
+    #     students = conn.execute(sql, (per_page, offset)).fetchall()
+        
+    #     return {
+    #         "students": [dict(row) for row in students],
+    #         "total": total_count,
+    #         "page": page,
+    #         "per_page": per_page,
+    #         "total_pages": (total_count + per_page - 1) // per_page
+    #     }
+    # except sqlite3.Error as e:
+    #     print(f"Database error: {e}")
+    #     return {"students": [], "total": 0}
+    # finally:
+    #     conn.close()
